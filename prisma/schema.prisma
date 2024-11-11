@@ -15,7 +15,8 @@ model User {
     email    String @unique
     password String
 
-    role UserRole
+    role     UserRole  @default(USER)
+    verified DateTime?
 
     cart             Cart?
     orders           Order[]
@@ -107,7 +108,7 @@ model CartItem {
     productItem   ProductItem @relation(fields: [productItemId], references: [id])
     productItemId Int
 
-    ingredient Ingredient[]
+    ingredients Ingredient[]
 
     quantity Int
 
