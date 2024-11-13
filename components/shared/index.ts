@@ -1,5 +1,5 @@
-import { SearchInput } from './search-input';
-import { ProductCard } from './product-card';
+import { GroupVariants } from './group-variants';
+export { ProductImage } from './product-image';
 export { Title } from './title';
 export { Container } from './container';
 export { Header } from './header';
@@ -13,3 +13,4 @@ export { CheckboxFiltersGroup } from './checkbox-filters-group';
 export { ProductCard } from './product-card';
 export { ProductsGroupList } from './products-group-list';
 export { SearchInput } from './search-input';
+export { GroupVariants } from './group-variants';
