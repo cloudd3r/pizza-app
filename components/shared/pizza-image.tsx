@@ -3,15 +3,11 @@ import React from 'react';
 
 interface Props {
   className?: string;
-  size: number;
+  size: 20 | 30 | 40;
   imageUrl: string;
 }
 
-export const ProductImage: React.FC<Props> = ({
-  className,
-  size,
-  imageUrl,
-}) => {
+export const PizzaImage: React.FC<Props> = ({ className, size, imageUrl }) => {
   return (
     <div
       className={cn(
