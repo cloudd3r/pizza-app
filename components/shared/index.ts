@@ -1,4 +1,3 @@
-import { GroupVariants } from './group-variants';
 export { ProductImage } from './product-image';
 export { Title } from './title';
 export { Container } from './container';
@@ -14,3 +13,4 @@ export { ProductCard } from './product-card';
 export { ProductsGroupList } from './products-group-list';
 export { SearchInput } from './search-input';
 export { GroupVariants } from './group-variants';
+export * from './modals';
