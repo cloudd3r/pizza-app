@@ -30,7 +30,9 @@ export const ChooseProductModal: React.FC<Props> = ({ product, className }) => {
           <ChoosePizzaForm
             name={product.name}
             imageUrl={product.imageUrl}
-            onSubmit={() => router.push(`/product/${product.id}`)}
+            onClickAddCart={() => router.push(`/product/${product.id}`)}
+            ingredients={product.ingredients}
+            items={product.items}
           />
         ) : (
           <ChooseProductForm
