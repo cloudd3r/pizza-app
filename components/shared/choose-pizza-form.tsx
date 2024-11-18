@@ -17,7 +17,7 @@ interface Props {
   imageUrl: string;
   name: string;
   loading?: boolean;
-  onClickAddCart?: VoidFunction;
+  onSubmit: (itemId: number, ingredients: number[]) => void;
   className?: string;
   ingredients: Ingredient[];
 }
@@ -25,7 +25,7 @@ interface Props {
 export const ChoosePizzaForm: React.FC<Props> = ({
   name,
   imageUrl,
-  onClickAddCart,
+  onSubmit,
   className,
   loading,
   ingredients,
@@ -49,6 +49,12 @@ export const ChoosePizzaForm: React.FC<Props> = ({
     ingredients,
     selectedIngredients
   );
+
+  const handleClickAdd = () => {
+    if (currentItemId) {
+      onSubmit(currentItemId, Array.from(selectedIngredients));
+    }
+  };
 
   return (
     <div className={cn(className, 'flex flex-1')}>
@@ -96,7 +102,7 @@ export const ChoosePizzaForm: React.FC<Props> = ({
 
         <Button
           loading={loading}
-          onClick={() => onClickAddCart?.()}
+          onClick={handleClickAdd}
           className='h-[55px] px-10 text-base rounded-[18px] w-full mt-10'
         >
           Добавить в корзину за {totalPrice} ₽
