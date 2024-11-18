@@ -11,26 +11,15 @@ interface Props {
   className?: string;
 }
 
-interface PriceProps {
-  priceFrom?: number;
-  priceTo?: number;
-}
-
-interface QueryFilters extends PriceProps {
-  sizes: string;
-  pizzaTypes: string;
-  ingredients: string;
-}
-
 export const Filters: React.FC<Props> = ({ className }) => {
   const { ingredients, loading } = useIngredients();
   const filters = useFilters();
 
   useQueryFilters(filters);
 
-  const items = ingredients.map((ingredient) => ({
-    text: ingredient.name,
-    value: String(ingredient.id),
+  const items = ingredients.map((item) => ({
+    value: String(item.id),
+    text: item.name,
   }));
 
   const updatePrices = (prices: number[]) => {

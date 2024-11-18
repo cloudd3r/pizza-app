@@ -1,32 +1,29 @@
+import { Api } from '@/services/api-client';
 import { Ingredient } from '@prisma/client';
 import React from 'react';
-import { useState } from 'react';
 
-interface ReturnProps {
-  ingredients: Ingredient[];
-  loading: boolean;
-}
-
-export const useIngredients = (): ReturnProps => {
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [loading, setLoading] = useState(false);
+export const useIngredients = () => {
+  const [ingredients, setIngredients] = React.useState<Ingredient[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const fetchIngredients = async () => {
+    async function fetchIngredients() {
       try {
         setLoading(true);
-        const response = await fetch('/api/ingredients');
-        const data = await response.json();
-        setIngredients(data);
+        const ingredients = await Api.ingredients.getAll();
+        setIngredients(ingredients);
       } catch (error) {
-        console.error('Error fetching ingredients:', error);
+        console.log(error);
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchIngredients();
   }, []);
 
-  return { ingredients, loading };
+  return {
+    ingredients,
+    loading,
+  };
 };
