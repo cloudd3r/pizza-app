@@ -4,7 +4,6 @@ import React from 'react';
 
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetFooter,
   SheetHeader,
@@ -18,26 +17,17 @@ import { CartDrawerItem } from './cart-drawer-item';
 import { getCartItemDetails } from '@/lib/get-cart-item-details';
 import { useCartStore } from '@/store';
 import { PizzaSize, PizzaType } from '@/constants/pizza';
-import { stat } from 'fs';
 
 export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
-  const [
-    fetchCartItems,
-    totalAmount,
-    items,
-    updateItemQuantity,
-    removeCartItem,
-  ] = useCartStore((state) => [
-    state.fetchCartItems,
-    state.totalAmount,
-    state.items,
-    state.updateItemQuantity,
-    state.removeCartItem,
-  ]);
-  console.log('fetchCartItems reference:', fetchCartItems);
+  const totalAmount = useCartStore((state) => state.totalAmount);
+  const items = useCartStore((state) => state.items);
+  const fetchCartItems = useCartStore((state) => state.fetchCartItems);
+  const updateItemQuantity = useCartStore((state) => state.updateItemQuantity);
+  const removeCartItem = useCartStore((state) => state.removeCartItem);
+
   React.useEffect(() => {
     fetchCartItems();
-  }, [fetchCartItems]);
+  }, []);
 
   const onClickCountButton = (
     id: number,
@@ -60,10 +50,9 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
         </SheetHeader>
 
         <div className='-mx-6 mt-5 overflow-auto flex-1'>
-          <div className='mb-2'>
-            {items.map((item) => (
+          {items.map((item) => (
+            <div key={item.id} className='mb-2'>
               <CartDrawerItem
-                key={item.id}
                 id={item.id}
                 imageUrl={item.imageUrl}
                 details={getCartItemDetails(
@@ -71,6 +60,7 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
                   item.pizzaType as PizzaType,
                   item.pizzaSize as PizzaSize
                 )}
+                disabled={item.disabled}
                 name={item.name}
                 price={item.price}
                 quantity={item.quantity}
@@ -79,8 +69,8 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
                 }
                 onClickRemove={() => removeCartItem(item.id)}
               />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
         <SheetFooter className='-mx-6 bg-white p-8'>

@@ -1,3 +1,4 @@
+import { ProductForm } from './product-form';
 export { PizzaImage } from './pizza-image';
 export { Title } from './title';
 export { Container } from './container';
@@ -19,4 +20,5 @@ export { IngredientItem } from './ingredient-item';
 export { CartDrawer } from './cart-drawer';
 export { CartButton } from './cart-button';
 export { CartDrawerItem } from './cart-drawer-item';
+export { ProductForm } from './product-form';
 export * from './modals';
