@@ -1,6 +1,6 @@
 'use client';
 
-import React, { use } from 'react';
+import React from 'react';
 import { Title } from './title';
 import { Input } from '../ui';
 import { RangeSlider } from './range-slider';

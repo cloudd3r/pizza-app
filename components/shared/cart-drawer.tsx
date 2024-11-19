@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 
 import {
@@ -32,10 +34,10 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
     state.updateItemQuantity,
     state.removeCartItem,
   ]);
-
+  console.log('fetchCartItems reference:', fetchCartItems);
   React.useEffect(() => {
     fetchCartItems();
-  }, []);
+  }, [fetchCartItems]);
 
   const onClickCountButton = (
     id: number,

@@ -8,23 +8,23 @@ interface PriceProps {
 }
 
 interface QueryFilters extends PriceProps {
-  sizes: string;
   pizzaTypes: string;
+  sizes: string;
   ingredients: string;
 }
 
 export interface Filters {
-  selectedIngredients: Set<string>;
   sizes: Set<string>;
   pizzaTypes: Set<string>;
+  selectedIngredients: Set<string>;
   prices: PriceProps;
 }
 
 interface ReturnProps extends Filters {
-  setIngredients: (id: string) => void;
-  setPizzaSizes: (id: string) => void;
-  setPizzaTypes: (id: string) => void;
   setPrices: (name: keyof PriceProps, value: number) => void;
+  setPizzaTypes: (value: string) => void;
+  setPizzaSizes: (value: string) => void;
+  setIngredients: (value: string) => void;
 }
 
 export const useFilters = (): ReturnProps => {
@@ -39,33 +39,41 @@ export const useFilters = (): ReturnProps => {
 
   const [sizes, { toggle: toggleSizes }] = useSet(
     new Set<string>(
-      searchParams.get('sizes') ? searchParams.get('sizes')?.split(',') : []
+      searchParams.has('sizes') ? searchParams.get('sizes')?.split(',') : []
     )
   );
+
   const [pizzaTypes, { toggle: togglePizzaTypes }] = useSet(
     new Set<string>(
-      searchParams.get('pizzaTypes')
+      searchParams.has('pizzaTypes')
         ? searchParams.get('pizzaTypes')?.split(',')
         : []
     )
   );
+
   const [prices, setPrices] = React.useState<PriceProps>({
     priceFrom: Number(searchParams.get('priceFrom')) || undefined,
     priceTo: Number(searchParams.get('priceTo')) || undefined,
   });
 
-  const updatePrices = (name: keyof PriceProps, value: number) => {
-    setPrices((prev) => ({ ...prev, [name]: value }));
+  const updatePrice = (name: keyof PriceProps, value: number) => {
+    setPrices((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  return {
-    selectedIngredients,
-    setIngredients: toggleIngredients,
-    sizes,
-    setPizzaSizes: toggleSizes,
-    pizzaTypes,
-    setPizzaTypes: togglePizzaTypes,
-    prices,
-    setPrices: updatePrices,
-  };
+  return React.useMemo(
+    () => ({
+      sizes,
+      pizzaTypes,
+      selectedIngredients,
+      prices,
+      setPrices: updatePrice,
+      setPizzaTypes: togglePizzaTypes,
+      setPizzaSizes: toggleSizes,
+      setIngredients: toggleIngredients,
+    }),
+    [sizes, pizzaTypes, selectedIngredients, prices]
+  );
 };

@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import React from 'react';
 import { Button } from '../ui';
-import { ArrowRight, ShoppingCart, User } from 'lucide-react';
+import { ArrowRight, ShoppingCart } from 'lucide-react';
 import { CartDrawer } from './cart-drawer';
 import { useCartStore } from '@/store';
 
@@ -12,9 +12,9 @@ interface Props {
 }
 
 export const CartButton: React.FC<Props> = ({ className }) => {
-  const [items, totalAmount, loading] = useCartStore((state) => [
-    state.items,
+  const [totalAmount, items, loading] = useCartStore((state) => [
     state.totalAmount,
+    state.items,
     state.loading,
   ]);
 
