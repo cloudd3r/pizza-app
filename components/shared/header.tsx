@@ -37,7 +37,7 @@ export const Header: React.FC<Props> = ({ className, hasCart, hasSearch }) => {
         )}
 
         <div className='flex items-center gap-3'>
-          <Button variant='outline' className={cn('group relative', className)}>
+          <Button variant='outline' className={'group relative'}>
             <User size={16} />
             Войти
           </Button>

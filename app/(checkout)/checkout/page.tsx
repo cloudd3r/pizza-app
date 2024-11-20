@@ -1,23 +1,31 @@
 'use client';
 
+import { CheckoutSidebar, Container, Title } from '@/components/shared';
 import {
-  CheckoutItem,
-  CheckoutItemDetails,
-  CheckoutItemSkeleton,
-  Container,
-  Title,
-  WhiteBlock,
-} from '@/components/shared';
-import { Button, Input, Textarea } from '@/components/ui';
-import { PizzaSize, PizzaType } from '@/constants/pizza';
+  CheckoutAddressForm,
+  CheckoutCart,
+  CheckoutPersonalForm,
+} from '@/components/shared/checkout';
+import { checkoutFormSchema, CheckoutFormValues } from '@/constants';
 import { useCart } from '@/hooks';
-import { getCartItemDetails } from '@/lib/get-cart-item-details';
-import { cn } from '@/lib/utils';
-import { ArrowRight, Package, Percent, Truck } from 'lucide-react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export default function CheckoutPage() {
   const { totalAmount, updateItemQuantity, items, removeCartItem, loading } =
     useCart();
+
+  const form = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutFormSchema),
+    defaultValues: {
+      email: '',
+      firstName: '',
+      lastName: '',
+      phone: '',
+      address: '',
+      comment: '',
+    },
+  });
 
   const onClickCountButton = (
     id: number,
@@ -28,6 +36,8 @@ export default function CheckoutPage() {
     updateItemQuantity(id, newQuantity);
   };
 
+  const onSubmit = async (data: CheckoutFormValues) => {};
+
   return (
     <Container className='mt-10'>
       <Title
@@ -35,107 +45,34 @@ export default function CheckoutPage() {
         className='font-extrabold mb-8 text-[36px]'
       />
 
-      <div className='flex gap-10'>
-        {/* Левая часть */}
-        <div className='flex flex-col gap-10 flex-1 mb-20'>
-          <WhiteBlock title='1. Корзина'>
-            <div className='flex flex-col gap-5'>
-              {loading
-                ? [...Array(items.length)].map((_, index) => (
-                    <CheckoutItemSkeleton key={index} />
-                  ))
-                : items.map((item) => (
-                    <CheckoutItem
-                      key={item.id}
-                      id={item.id}
-                      imageUrl={item.imageUrl}
-                      details={getCartItemDetails(
-                        item.ingredients,
-                        item.pizzaType as PizzaType,
-                        item.pizzaSize as PizzaSize
-                      )}
-                      name={item.name}
-                      price={item.price}
-                      quantity={item.quantity}
-                      disabled={item.disabled}
-                      onClickCountButton={(type) =>
-                        onClickCountButton(item.id, item.quantity, type)
-                      }
-                      onClickRemove={() => removeCartItem(item.id)}
-                    />
-                  ))}
-            </div>
-          </WhiteBlock>
-
-          <WhiteBlock title='2. Персональные данные'>
-            <div className='grid grid-cols-2 gap-5'>
-              <Input name='firstName' className='text-base' placeholder='Имя' />
-              <Input
-                name='lastName'
-                className='text-base'
-                placeholder='Фамилия'
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <div className='flex gap-10'>
+            {/* Левая часть */}
+            <div className='flex flex-col gap-10 flex-1 mb-20'>
+              <CheckoutCart
+                onClickCountButton={onClickCountButton}
+                removeCartItem={removeCartItem}
+                items={items}
+                loading={loading}
               />
-              <Input name='email' className='text-base' placeholder='E-Mail' />
-              <Input name='phone' className='text-base' placeholder='Телефон' />
+
+              <CheckoutPersonalForm
+                className={loading ? 'opacity-40 pointer-events-none' : ''}
+              />
+
+              <CheckoutAddressForm
+                className={loading ? 'opacity-40 pointer-events-none' : ''}
+              />
             </div>
-          </WhiteBlock>
 
-          <WhiteBlock title='3. Адрес доставки'>
-            <Input name='phone' className='text-base' placeholder='Телефон' />
-
-            <Textarea
-              name='comment'
-              className='text-base'
-              placeholder='Комментарий к заказу'
-              rows={5}
-            />
-          </WhiteBlock>
-        </div>
-
-        {/* Правая часть */}
-        <WhiteBlock className={cn('p-6 sticky top-4')}>
-          <div className='flex flex-col gap-1'>
-            <span className='text-xl'>Итого:</span>
-            <span className='h-11 text-[34px] font-extrabold'>3000 ₽</span>
+            {/* Правая часть */}
+            <div className='w-[450px]'>
+              <CheckoutSidebar totalAmount={totalAmount} loading={loading} />
+            </div>
           </div>
-
-          <CheckoutItemDetails
-            title={
-              <div className='flex items-center'>
-                <Package size={18} className='mr-2 text-gray-400' />
-                Стоимость корзины:
-              </div>
-            }
-            value={totalAmount + ' ₽'}
-          />
-          <CheckoutItemDetails
-            title={
-              <div className='flex items-center'>
-                <Percent size={18} className='mr-2 text-gray-400' />
-                Налоги:
-              </div>
-            }
-            value={'500 ₽'}
-          />
-          <CheckoutItemDetails
-            title={
-              <div className='flex items-center'>
-                <Truck size={18} className='mr-2 text-gray-400' />
-                Доставка:
-              </div>
-            }
-            value={'500 ₽'}
-          />
-
-          <Button
-            type='submit'
-            className='w-full h-14 rounded-2xl mt-6 text-base font-bold'
-          >
-            Перейти к оплате
-            <ArrowRight className='w-5 ml-2' />
-          </Button>
-        </WhiteBlock>
-      </div>
+        </form>
+      </FormProvider>
     </Container>
   );
 }
