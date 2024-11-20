@@ -1,4 +1,3 @@
-import { ProductForm } from './product-form';
 export { PizzaImage } from './pizza-image';
 export { Title } from './title';
 export { Container } from './container';
@@ -21,4 +20,9 @@ export { CartDrawer } from './cart-drawer';
 export { CartButton } from './cart-button';
 export { CartDrawerItem } from './cart-drawer-item';
 export { ProductForm } from './product-form';
+export { CheckoutItem } from './checkout-item';
+export { WhiteBlock } from './white-block';
+export { CheckoutItemDetails } from './checkout-item-details';
+export { CheckoutItemSkeleton } from './checkout-item-skeleton';
+
 export * from './modals';
