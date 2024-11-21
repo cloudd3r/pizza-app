@@ -36,7 +36,9 @@ export default function CheckoutPage() {
     updateItemQuantity(id, newQuantity);
   };
 
-  const onSubmit = async (data: CheckoutFormValues) => {};
+  const onSubmit = async (data: CheckoutFormValues) => {
+    console.log(data);
+  };
 
   return (
     <Container className='mt-10'>

@@ -24,6 +24,7 @@ import { useCart } from '@/hooks';
 
 export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { totalAmount, updateItemQuantity, items, removeCartItem } = useCart();
+  const [redirecting, setRedirecting] = React.useState(false);
 
   const onClickCountButton = (
     id: number,
@@ -118,7 +119,12 @@ export const CartDrawer: React.FC<React.PropsWithChildren> = ({ children }) => {
                   </div>
 
                   <Link href='/checkout'>
-                    <Button type='submit' className='w-full h-12 text-base'>
+                    <Button
+                      loading={redirecting}
+                      onClick={() => setRedirecting(true)}
+                      type='submit'
+                      className='w-full h-12 text-base'
+                    >
                       Оформить заказ
                       <ArrowRight className='w-5 ml-2' />
                     </Button>
