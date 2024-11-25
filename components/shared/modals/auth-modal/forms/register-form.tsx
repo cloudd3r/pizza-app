@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import { registerUser } from '@/app/actions';
 import { TFormRegisterValues, formRegisterSchema } from './schemas';
 import { FormInput } from '../../../form';
-import { Button } from '@/shared/components/ui';
+import { Button } from '@/components/ui';
 
 interface Props {
   onClose?: VoidFunction;
@@ -47,13 +47,25 @@ export const RegisterForm: React.FC<Props> = ({ onClose, onClickLogin }) => {
 
   return (
     <FormProvider {...form}>
-      <form className="flex flex-col gap-5" onSubmit={form.handleSubmit(onSubmit)}>
-        <FormInput name="email" label="E-Mail" required />
-        <FormInput name="fullName" label="Полное имя" required />
-        <FormInput name="password" label="Пароль" type="password" required />
-        <FormInput name="confirmPassword" label="Подтвердите пароль" type="password" required />
+      <form
+        className='flex flex-col gap-5'
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <FormInput name='email' label='E-Mail' required />
+        <FormInput name='fullName' label='Полное имя' required />
+        <FormInput name='password' label='Пароль' type='password' required />
+        <FormInput
+          name='confirmPassword'
+          label='Подтвердите пароль'
+          type='password'
+          required
+        />
 
-        <Button loading={form.formState.isSubmitting} className="h-12 text-base" type="submit">
+        <Button
+          loading={form.formState.isSubmitting}
+          className='h-12 text-base'
+          type='submit'
+        >
           Зарегистрироваться
         </Button>
       </form>

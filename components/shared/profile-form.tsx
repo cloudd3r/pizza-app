@@ -3,7 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { TFormRegisterValues, formRegisterSchema } from './modals/auth-modal/forms/schemas';
+import {
+  TFormRegisterValues,
+  formRegisterSchema,
+} from './modals/auth-modal/forms/schemas';
 import { User } from '@prisma/client';
 import toast from 'react-hot-toast';
 import { signOut } from 'next-auth/react';
@@ -53,27 +56,49 @@ export const ProfileForm: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <Container className="my-10">
-      <Title text={`Личные данные | #${data.id}`} size="md" className="font-bold" />
+    <Container className='my-10'>
+      <Title
+        text={`Личные данные | ${data.fullName}`}
+        size='md'
+        className='font-bold'
+      />
 
       <FormProvider {...form}>
-        <form className="flex flex-col gap-5 w-96 mt-10" onSubmit={form.handleSubmit(onSubmit)}>
-          <FormInput name="email" label="E-Mail" required />
-          <FormInput name="fullName" label="Полное имя" required />
+        <form
+          className='flex flex-col gap-5 w-96 mt-10'
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <FormInput name='email' label='E-Mail' required />
+          <FormInput name='fullName' label='Полное имя' required />
 
-          <FormInput type="password" name="password" label="Новый пароль" required />
-          <FormInput type="password" name="confirmPassword" label="Повторите пароль" required />
+          <FormInput
+            type='password'
+            name='password'
+            label='Новый пароль'
+            required
+          />
+          <FormInput
+            type='password'
+            name='confirmPassword'
+            label='Повторите пароль'
+            required
+          />
 
-          <Button disabled={form.formState.isSubmitting} className="text-base mt-10" type="submit">
+          <Button
+            disabled={form.formState.isSubmitting}
+            className='text-base mt-10'
+            type='submit'
+          >
             Сохранить
           </Button>
 
           <Button
             onClick={onClickSignOut}
-            variant="secondary"
+            variant='secondary'
             disabled={form.formState.isSubmitting}
-            className="text-base"
-            type="button">
+            className='text-base'
+            type='button'
+          >
             Выйти
           </Button>
         </form>

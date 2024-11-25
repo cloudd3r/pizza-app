@@ -6,6 +6,8 @@ import { ProfileForm } from '@/components/shared';
 export default async function ProfilePage() {
   const session = await getUserSession();
 
+  console.log(session);
+
   if (!session) {
     return redirect('/not-auth');
   }
