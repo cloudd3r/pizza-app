@@ -1,4 +1,4 @@
-import { CartItemDTO } from '@/shared/services/dto/cart.dto';
+import { CartItemDTO } from '@/services/dto/cart.dto';
 import React from 'react';
 
 interface Props {
@@ -17,8 +17,8 @@ export const OrderSuccessTemplate: React.FC<Props> = ({ orderId, items }) => (
     <ul>
       {items.map((item) => (
         <li key={item.id}>
-          {item.productItem.product.name} | {item.productItem.price} ₽ x {item.quantity} шт. ={' '}
-          {item.productItem.price * item.quantity} ₽
+          {item.productItem.product.name} | {item.productItem.price} ₽ x{' '}
+          {item.quantity} шт. = {item.productItem.price * item.quantity} ₽
         </li>
       ))}
     </ul>

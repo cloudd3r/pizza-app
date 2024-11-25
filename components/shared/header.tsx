@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { Container } from './container';
 import Image from 'next/image';
@@ -5,8 +7,10 @@ import Link from 'next/link';
 import { SearchInput } from './search-input';
 import { CartButton } from './cart-button';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui';
-import { User } from 'lucide-react';
+import { ProfileButton } from './profile-button';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { AuthModal } from './modals';
+import toast from 'react-hot-toast';
 
 interface Props {
   hasCart?: boolean;
@@ -15,6 +19,32 @@ interface Props {
 }
 
 export const Header: React.FC<Props> = ({ className, hasCart, hasSearch }) => {
+  const router = useRouter();
+  const [openAuthModal, setOpenAuthModal] = React.useState(false);
+
+  const searchParams = useSearchParams();
+
+  React.useEffect(() => {
+    let toastMessage = '';
+
+    if (searchParams.has('paid')) {
+      toastMessage = 'Заказ успешно оплачен! Информация отправлена на почту.';
+    }
+
+    if (searchParams.has('verified')) {
+      toastMessage = 'Почта успешно подтверждена!';
+    }
+
+    if (toastMessage) {
+      setTimeout(() => {
+        router.replace('/');
+        toast.success(toastMessage, {
+          duration: 3000,
+        });
+      }, 1000);
+    }
+  }, []);
+
   return (
     <header className={cn('border-b', className)}>
       <Container className='flex items-center justify-between py-8'>
@@ -37,10 +67,12 @@ export const Header: React.FC<Props> = ({ className, hasCart, hasSearch }) => {
         )}
 
         <div className='flex items-center gap-3'>
-          <Button variant='outline' className={'group relative'}>
-            <User size={16} />
-            Войти
-          </Button>
+          <AuthModal
+            open={openAuthModal}
+            onClose={() => setOpenAuthModal(false)}
+          />
+
+          <ProfileButton onClickSignIn={() => setOpenAuthModal(true)} />
 
           {hasCart && <CartButton />}
         </div>
