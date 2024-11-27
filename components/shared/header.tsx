@@ -18,7 +18,11 @@ interface Props {
   className?: string;
 }
 
-export const Header: React.FC<Props> = ({ className, hasCart, hasSearch }) => {
+export const Header: React.FC<Props> = ({
+  className,
+  hasSearch = true,
+  hasCart = true,
+}) => {
   const router = useRouter();
   const [openAuthModal, setOpenAuthModal] = React.useState(false);
 
