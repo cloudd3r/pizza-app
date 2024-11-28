@@ -46,6 +46,7 @@ export const ProfileForm: React.FC<Props> = ({ data }) => {
       return toast.error('Ошибка при обновлении данных', {
         icon: '❌',
       });
+      console.log(error);
     }
   };
 

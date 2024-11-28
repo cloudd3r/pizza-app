@@ -1,9 +1,8 @@
-import React, { use } from 'react';
+import React from 'react';
 import { Categories } from './categories';
 import { SortPopup } from './sort-popup';
 import { cn } from '@/lib/utils';
 import { Container } from './container';
-import { categories } from '@/prisma/constants';
 import { Category } from '@prisma/client';
 
 interface Props {
