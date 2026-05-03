@@ -21,6 +21,9 @@ export const Stories: React.FC<Props> = ({ className }) => {
   const [open, setOpen] = React.useState(false);
   const [selectedStoryIndex, setSelectedStoryIndex] = React.useState(0);
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
+  const [canScrollPrev, setCanScrollPrev] = React.useState(false);
+  const [canScrollNext, setCanScrollNext] = React.useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
 
   const selectedStory = stories[selectedStoryIndex];
   const selectedItems = React.useMemo(() => {
@@ -35,14 +38,52 @@ export const Stories: React.FC<Props> = ({ className }) => {
 
   const selectedItemUrl = selectedItems[selectedItemIndex];
 
-  React.useEffect(() => {
-    async function fetchStories() {
-      const data = await Api.stories.getAll();
-      setStories(data);
+  const updateScrollState = React.useCallback(() => {
+    const element = scrollRef.current;
+
+    if (!element) {
+      setCanScrollPrev(false);
+      setCanScrollNext(false);
+      return;
     }
 
-    fetchStories();
+    setCanScrollPrev(element.scrollLeft > 4);
+    setCanScrollNext(
+      element.scrollLeft + element.clientWidth < element.scrollWidth - 4,
+    );
   }, []);
+
+  const fetchStories = React.useCallback(async () => {
+    try {
+      const data = await Api.stories.getAll();
+      setStories(data);
+    } catch {
+      setStories((current) => current);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    fetchStories();
+
+    const interval = window.setInterval(() => fetchStories(), 15000);
+    const onFocus = () => fetchStories();
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
+  }, [fetchStories]);
+
+  React.useEffect(() => {
+    const timeout = window.setTimeout(updateScrollState, 0);
+    window.addEventListener('resize', updateScrollState);
+
+    return () => {
+      window.clearTimeout(timeout);
+      window.removeEventListener('resize', updateScrollState);
+    };
+  }, [stories.length, updateScrollState]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -70,6 +111,16 @@ export const Stories: React.FC<Props> = ({ className }) => {
     if (isValidImageUrl(story.previewImageUrl)) {
       setOpen(true);
     }
+  };
+
+  const scrollStories = (direction: -1 | 1) => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    element.scrollBy({
+      left: direction * 528,
+      behavior: 'smooth',
+    });
   };
 
   const openPreviousStory = () => {
@@ -120,38 +171,58 @@ export const Stories: React.FC<Props> = ({ className }) => {
 
   return (
     <>
-      <Container
-        className={cn(
-          'flex items-center gap-2 my-8 overflow-x-auto pb-1 scrollbar',
-          className
-        )}
-      >
-        {stories.length === 0 &&
-          [...Array(6)].map((_, index) => (
-            <div
-              key={index}
-              className='h-[204px] min-w-[164px] bg-gray-100 rounded-3xl animate-pulse'
-            />
-          ))}
-
-        {stories.map((story, index) => (
-          <button
-            key={story.id}
-            type='button'
-            onClick={() => onClickStory(index)}
-            className='group relative h-[204px] min-w-[164px] overflow-hidden rounded-3xl bg-gray-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg'
+      <Container className={cn('relative my-8', className)}>
+        <div className='relative max-w-[1128px]'>
+          <div
+            ref={scrollRef}
+            onScroll={updateScrollState}
+            className='no-scrollbar flex gap-2 overflow-x-auto scroll-smooth pr-14'
           >
-            <img
-              className='h-full w-full object-cover transition duration-300 group-hover:scale-105'
-              height={204}
-              width={164}
-              src={story.previewImageUrl}
-              alt={`Story ${story.id}`}
-            />
-            <span className='pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-black/5' />
-            <span className='pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent opacity-80' />
-          </button>
-        ))}
+            {stories.map((story, index) => (
+              <button
+                key={story.id}
+                type='button'
+                onClick={() => onClickStory(index)}
+                className='group relative h-[204px] min-w-[164px] overflow-hidden rounded-3xl bg-gray-100 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg'
+              >
+                <img
+                  className='h-full w-full object-cover transition duration-300 group-hover:scale-105'
+                  height={204}
+                  width={164}
+                  src={story.previewImageUrl}
+                  alt={`Story ${story.id}`}
+                />
+                <span className='pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-black/5' />
+                <span className='pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/20 to-transparent opacity-80' />
+              </button>
+            ))}
+          </div>
+
+          {canScrollPrev && (
+            <button
+              type='button'
+              aria-label='Scroll stories left'
+              onClick={() => scrollStories(-1)}
+              className='absolute -left-5 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+            >
+              <ChevronLeft className='h-7 w-7' />
+            </button>
+          )}
+
+          {canScrollNext && (
+            <>
+              <div className='pointer-events-none absolute bottom-0 right-0 top-0 w-28 bg-gradient-to-l from-white via-white/80 to-transparent' />
+              <button
+                type='button'
+                aria-label='Scroll stories right'
+                onClick={() => scrollStories(1)}
+                className='absolute -right-5 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+              >
+                <ChevronRight className='h-7 w-7' />
+              </button>
+            </>
+          )}
+        </div>
       </Container>
 
       {open && selectedStory && selectedItemUrl && (
