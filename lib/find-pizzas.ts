@@ -1,4 +1,5 @@
 import { prisma } from '@/prisma/prisma-client';
+import type { Prisma } from '@prisma/client';
 
 export interface GetSearchParams {
   query?: string;
@@ -11,6 +12,62 @@ export interface GetSearchParams {
 }
 
 const DEFAULT_MIN_PRICE = 0;
+const CATEGORIES_CACHE_DURATION_MS = 15000;
+
+const categoriesQuery = {
+  include: {
+    products: {
+      orderBy: {
+        id: 'desc',
+      },
+      include: {
+        ingredients: true,
+        items: {
+          orderBy: {
+            price: 'asc',
+          },
+        },
+      },
+    },
+  },
+  orderBy: {
+    id: 'asc',
+  },
+} satisfies Prisma.CategoryFindManyArgs;
+
+type CategoryWithProducts = Prisma.CategoryGetPayload<typeof categoriesQuery>;
+
+let cachedCategories:
+  | {
+      data: CategoryWithProducts[];
+      expiry: number;
+    }
+  | undefined;
+
+const getCategories = async () => {
+  const now = Date.now();
+
+  if (cachedCategories && cachedCategories.expiry > now) {
+    return cachedCategories.data;
+  }
+
+  try {
+    const data = await prisma.category.findMany(categoriesQuery);
+    cachedCategories = {
+      data,
+      expiry: now + CATEGORIES_CACHE_DURATION_MS,
+    };
+
+    return data;
+  } catch (error) {
+    if (cachedCategories) {
+      cachedCategories.expiry = now + 5000;
+      return cachedCategories.data;
+    }
+
+    throw error;
+  }
+};
 
 const parseNumberList = (value?: string) => {
   const values = value
@@ -29,26 +86,7 @@ export const findPizzas = async (params: GetSearchParams) => {
   const minPrice = Number(params.priceFrom) || DEFAULT_MIN_PRICE;
   const maxPrice = Number(params.priceTo) || undefined;
 
-  const categories = await prisma.category.findMany({
-    include: {
-      products: {
-        orderBy: {
-          id: 'desc',
-        },
-        include: {
-          ingredients: true,
-          items: {
-            orderBy: {
-              price: 'asc',
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      id: 'asc',
-    },
-  });
+  const categories = await getCategories();
 
   return categories.map((category) => ({
     ...category,
