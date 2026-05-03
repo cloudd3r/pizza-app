@@ -6,18 +6,34 @@ import React from 'react';
 import { Container } from './container';
 import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import ReactStories from 'react-insta-stories';
 
 interface Props {
   className?: string;
 }
 
+const STORY_INTERVAL_MS = 4500;
+
+const isValidImageUrl = (url?: string | null): url is string =>
+  Boolean(url && /^https?:\/\//.test(url));
+
 export const Stories: React.FC<Props> = ({ className }) => {
   const [stories, setStories] = React.useState<IStory[]>([]);
   const [open, setOpen] = React.useState(false);
   const [selectedStoryIndex, setSelectedStoryIndex] = React.useState(0);
+  const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
 
   const selectedStory = stories[selectedStoryIndex];
+  const selectedItems = React.useMemo(() => {
+    if (!selectedStory) return [];
+
+    const itemUrls = selectedStory.items
+      .map((item) => item.sourceUrl)
+      .filter(isValidImageUrl);
+
+    return itemUrls.length > 0 ? itemUrls : [selectedStory.previewImageUrl];
+  }, [selectedStory]);
+
+  const selectedItemUrl = selectedItems[selectedItemIndex];
 
   React.useEffect(() => {
     async function fetchStories() {
@@ -49,32 +65,58 @@ export const Stories: React.FC<Props> = ({ className }) => {
   const onClickStory = (index: number) => {
     const story = stories[index];
     setSelectedStoryIndex(index);
+    setSelectedItemIndex(0);
 
-    if (story.items.length > 0) {
+    if (isValidImageUrl(story.previewImageUrl)) {
       setOpen(true);
     }
   };
 
   const openPreviousStory = () => {
+    if (selectedItemIndex > 0) {
+      setSelectedItemIndex((index) => index - 1);
+      return;
+    }
+
     setSelectedStoryIndex((index) =>
       index === 0 ? stories.length - 1 : index - 1,
     );
+    setSelectedItemIndex(0);
   };
 
   const openNextStory = () => {
+    if (selectedItemIndex < selectedItems.length - 1) {
+      setSelectedItemIndex((index) => index + 1);
+      return;
+    }
+
     setSelectedStoryIndex((index) =>
       index === stories.length - 1 ? 0 : index + 1,
     );
+    setSelectedItemIndex(0);
   };
 
-  const closeOrOpenNextStory = () => {
+  const closeOrOpenNextStory = React.useCallback(() => {
+    if (selectedItemIndex < selectedItems.length - 1) {
+      setSelectedItemIndex((index) => index + 1);
+      return;
+    }
+
     if (stories.length <= 1 || selectedStoryIndex === stories.length - 1) {
       setOpen(false);
       return;
     }
 
-    openNextStory();
-  };
+    setSelectedStoryIndex((index) => index + 1);
+    setSelectedItemIndex(0);
+  }, [selectedItemIndex, selectedItems.length, selectedStoryIndex, stories.length]);
+
+  React.useEffect(() => {
+    if (!open || selectedItems.length === 0) return;
+
+    const timeout = window.setTimeout(closeOrOpenNextStory, STORY_INTERVAL_MS);
+    return () => window.clearTimeout(timeout);
+  }, [closeOrOpenNextStory, open, selectedItems.length]);
 
   return (
     <>
@@ -112,9 +154,15 @@ export const Stories: React.FC<Props> = ({ className }) => {
         ))}
       </Container>
 
-      {open && selectedStory && (
-        <div className='fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm'>
-          <div className='relative flex items-center justify-center'>
+      {open && selectedStory && selectedItemUrl && (
+        <div
+          className='fixed inset-0 z-50 flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm'
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className='relative flex items-center justify-center'
+            onClick={(event) => event.stopPropagation()}
+          >
             {stories.length > 1 && (
               <button
                 type='button'
@@ -126,38 +174,46 @@ export const Stories: React.FC<Props> = ({ className }) => {
               </button>
             )}
 
-            <div className='relative overflow-hidden rounded-[28px] bg-black shadow-2xl'>
+            <div className='relative h-[720px] w-[450px] max-h-[90vh] max-w-[calc(100vw-32px)] overflow-hidden rounded-[28px] bg-black shadow-2xl'>
+              <div className='absolute left-4 right-4 top-3 z-20 flex gap-1.5'>
+                {selectedItems.map((url, index) => (
+                  <div
+                    key={`${url}-${index}`}
+                    className='h-0.5 flex-1 overflow-hidden rounded-full bg-white/35'
+                  >
+                    <div
+                      key={`${selectedStory.id}-${selectedItemIndex}-${index}`}
+                      className={cn(
+                        'h-full rounded-full bg-white',
+                        index === selectedItemIndex && 'story-progress-animation',
+                      )}
+                      style={{
+                        width:
+                          index < selectedItemIndex
+                            ? '100%'
+                            : index === selectedItemIndex
+                              ? undefined
+                              : '0%',
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+
               <button
                 type='button'
-                className='absolute right-3 top-3 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm transition hover:bg-white hover:text-gray-900'
+                className='absolute right-3 top-7 z-30 flex h-9 w-9 items-center justify-center rounded-full bg-white/90 text-gray-500 shadow-sm transition hover:bg-white hover:text-gray-900'
                 onClick={() => setOpen(false)}
                 aria-label='Close stories'
               >
                 <X className='h-5 w-5' />
               </button>
 
-              <ReactStories
-                key={selectedStory.id}
-                onAllStoriesEnd={closeOrOpenNextStory}
-                stories={
-                  selectedStory.items.map((item) => ({
-                    url: item.sourceUrl,
-                  })) || []
-                }
-                defaultInterval={4500}
-                width={450}
-                height={720}
-                keyboardNavigation
-                storyContainerStyles={{
-                  borderRadius: 28,
-                  overflow: 'hidden',
-                  backgroundColor: '#111',
-                }}
-                storyStyles={{
-                  objectFit: 'cover',
-                  width: '100%',
-                  height: '100%',
-                }}
+              <img
+                key={`${selectedStory.id}-${selectedItemIndex}`}
+                src={selectedItemUrl}
+                alt={`Story ${selectedStory.id}`}
+                className='h-full w-full object-cover'
               />
             </div>
 
