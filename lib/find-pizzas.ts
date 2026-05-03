@@ -36,34 +36,9 @@ export const findPizzas = async (params: GetSearchParams) => {
         orderBy: {
           id: 'desc',
         },
-        where: {
-          ingredients: ingredientsIdArr
-            ? {
-                some: {
-                  id: {
-                    in: ingredientsIdArr,
-                  },
-                },
-              }
-            : undefined,
-          items: {
-            some: {
-              price: {
-                gte: minPrice,
-                lte: maxPrice,
-              },
-            },
-          },
-        },
         include: {
           ingredients: true,
           items: {
-            where: {
-              price: {
-                gte: minPrice,
-                lte: maxPrice,
-              },
-            },
             orderBy: {
               price: 'asc',
             },
@@ -71,25 +46,40 @@ export const findPizzas = async (params: GetSearchParams) => {
         },
       },
     },
+    orderBy: {
+      id: 'asc',
+    },
   });
 
   return categories.map((category) => ({
     ...category,
     products: category.products
-      .map((product) => ({
-        ...product,
-        items: product.items.filter((item) => {
-          const matchesPrice =
-            item.price >= minPrice && item.price <= maxPrice;
-          const matchesSize =
-            !sizes?.length || (item.size !== null && sizes.includes(item.size));
-          const matchesPizzaType =
-            !pizzaTypes?.length ||
-            (item.pizzaType !== null && pizzaTypes.includes(item.pizzaType));
+      .map((product) => {
+        const matchesIngredients =
+          !ingredientsIdArr?.length ||
+          product.ingredients.some((ingredient) =>
+            ingredientsIdArr.includes(ingredient.id),
+          );
 
-          return matchesPrice && matchesSize && matchesPizzaType;
-        }),
-      }))
+        return {
+          ...product,
+          items: matchesIngredients
+            ? product.items.filter((item) => {
+                const matchesPrice =
+                  item.price >= minPrice && item.price <= maxPrice;
+                const matchesSize =
+                  !sizes?.length ||
+                  (item.size !== null && sizes.includes(item.size));
+                const matchesPizzaType =
+                  !pizzaTypes?.length ||
+                  (item.pizzaType !== null &&
+                    pizzaTypes.includes(item.pizzaType));
+
+                return matchesPrice && matchesSize && matchesPizzaType;
+              })
+            : [],
+        };
+      })
       .filter((product) => product.items.length > 0),
   }));
 };
