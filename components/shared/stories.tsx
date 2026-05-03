@@ -18,6 +18,7 @@ const isValidImageUrl = (url?: string | null): url is string =>
 
 export const Stories: React.FC<Props> = ({ className }) => {
   const [stories, setStories] = React.useState<IStory[]>([]);
+  const [hasLoadedStories, setHasLoadedStories] = React.useState(false);
   const [open, setOpen] = React.useState(false);
   const [selectedStoryIndex, setSelectedStoryIndex] = React.useState(0);
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
@@ -59,6 +60,8 @@ export const Stories: React.FC<Props> = ({ className }) => {
       setStories(data);
     } catch {
       setStories((current) => current);
+    } finally {
+      setHasLoadedStories(true);
     }
   }, []);
 
@@ -178,6 +181,15 @@ export const Stories: React.FC<Props> = ({ className }) => {
             onScroll={updateScrollState}
             className='no-scrollbar flex gap-2 overflow-x-auto scroll-smooth pr-14'
           >
+            {!hasLoadedStories &&
+              stories.length === 0 &&
+              [...Array(6)].map((_, index) => (
+                <div
+                  key={index}
+                  className='h-[204px] min-w-[164px] animate-pulse rounded-3xl bg-gray-100'
+                />
+              ))}
+
             {stories.map((story, index) => (
               <button
                 key={story.id}
