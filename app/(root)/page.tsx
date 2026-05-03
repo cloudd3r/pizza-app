@@ -8,6 +8,9 @@ import {
 } from '@/components/shared';
 import { findPizzas } from '@/lib';
 import { GetSearchParams } from '@/lib/find-pizzas';
+
+export const dynamic = 'force-dynamic';
+
 export default async function Home({
   searchParams,
 }: {
