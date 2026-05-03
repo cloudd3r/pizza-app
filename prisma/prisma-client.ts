@@ -1,6 +1,5 @@
 import { PrismaNeonHTTP } from '@prisma/adapter-neon';
 import { PrismaClient } from '@prisma/client';
-import { neon } from '@neondatabase/serverless';
 
 const buildConnectionString = (): string => {
   const url = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_URL;
@@ -19,7 +18,7 @@ const buildAdapter = () => {
     return undefined;
   }
 
-  return new PrismaNeonHTTP(neon(buildConnectionString()));
+  return new PrismaNeonHTTP(buildConnectionString(), {});
 };
 
 const TRANSIENT_ERROR_CODES = new Set([
