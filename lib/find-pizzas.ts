@@ -13,10 +13,19 @@ export interface GetSearchParams {
 const DEFAULT_MIN_PRICE = 0;
 const DEFAULT_MAX_PRICE = 1000;
 
+const parseNumberList = (value?: string) => {
+  const values = value
+    ?.split(',')
+    .map(Number)
+    .filter((item) => Number.isFinite(item) && item > 0);
+
+  return values?.length ? values : undefined;
+};
+
 export const findPizzas = async (params: GetSearchParams) => {
-  const sizes = params.sizes?.split(',').map(Number);
-  const pizzaTypes = params.pizzaTypes?.split(',').map(Number);
-  const ingredientsIdArr = params.ingredients?.split(',').map(Number);
+  const sizes = parseNumberList(params.sizes);
+  const pizzaTypes = parseNumberList(params.pizzaTypes);
+  const ingredientsIdArr = parseNumberList(params.ingredients);
 
   const minPrice = Number(params.priceFrom) || DEFAULT_MIN_PRICE;
   const maxPrice = Number(params.priceTo) || DEFAULT_MAX_PRICE;
@@ -39,8 +48,6 @@ export const findPizzas = async (params: GetSearchParams) => {
             : undefined,
           items: {
             some: {
-              size: sizes ? { in: sizes } : undefined,
-              pizzaType: pizzaTypes ? { in: pizzaTypes } : undefined,
               price: {
                 gte: minPrice,
                 lte: maxPrice,
@@ -66,5 +73,23 @@ export const findPizzas = async (params: GetSearchParams) => {
     },
   });
 
-  return categories;
+  return categories.map((category) => ({
+    ...category,
+    products: category.products
+      .map((product) => ({
+        ...product,
+        items: product.items.filter((item) => {
+          const matchesPrice =
+            item.price >= minPrice && item.price <= maxPrice;
+          const matchesSize =
+            !sizes?.length || (item.size !== null && sizes.includes(item.size));
+          const matchesPizzaType =
+            !pizzaTypes?.length ||
+            (item.pizzaType !== null && pizzaTypes.includes(item.pizzaType));
+
+          return matchesPrice && matchesSize && matchesPizzaType;
+        }),
+      }))
+      .filter((product) => product.items.length > 0),
+  }));
 };
