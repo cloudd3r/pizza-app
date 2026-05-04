@@ -211,24 +211,27 @@ export const Stories: React.FC<Props> = ({ className }) => {
           </div>
 
           {canScrollPrev && (
-            <button
-              type='button'
-              aria-label='Scroll stories left'
-              onClick={() => scrollStories(-1)}
-              className='absolute -left-5 top-1/2 z-[1] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
-            >
-              <ChevronLeft className='h-7 w-7' />
-            </button>
+            <>
+              <div className='pointer-events-none absolute bottom-0 left-0 top-0 z-[1] w-28 bg-gradient-to-r from-white via-white/80 to-transparent' />
+              <button
+                type='button'
+                aria-label='Scroll stories left'
+                onClick={() => scrollStories(-1)}
+                className='absolute -left-5 top-1/2 z-[2] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+              >
+                <ChevronLeft className='h-7 w-7' />
+              </button>
+            </>
           )}
 
           {canScrollNext && (
             <>
-              <div className='pointer-events-none absolute bottom-0 right-0 top-0 w-28 bg-gradient-to-l from-white via-white/80 to-transparent' />
+              <div className='pointer-events-none absolute bottom-0 right-0 top-0 z-[1] w-28 bg-gradient-to-l from-white via-white/80 to-transparent' />
               <button
                 type='button'
                 aria-label='Scroll stories right'
                 onClick={() => scrollStories(1)}
-                className='absolute -right-5 top-1/2 z-[1] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+                className='absolute -right-5 top-1/2 z-[2] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
               >
                 <ChevronRight className='h-7 w-7' />
               </button>
