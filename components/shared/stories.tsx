@@ -215,7 +215,7 @@ export const Stories: React.FC<Props> = ({ className }) => {
               type='button'
               aria-label='Scroll stories left'
               onClick={() => scrollStories(-1)}
-              className='absolute -left-5 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+              className='absolute -left-5 top-1/2 z-[1] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
             >
               <ChevronLeft className='h-7 w-7' />
             </button>
@@ -228,7 +228,7 @@ export const Stories: React.FC<Props> = ({ className }) => {
                 type='button'
                 aria-label='Scroll stories right'
                 onClick={() => scrollStories(1)}
-                className='absolute -right-5 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
+                className='absolute -right-5 top-1/2 z-[1] flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-primary shadow-lg transition hover:scale-105'
               >
                 <ChevronRight className='h-7 w-7' />
               </button>
