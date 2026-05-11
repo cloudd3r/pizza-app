@@ -35,6 +35,7 @@ export { Providers } from './providers';
 export { ProfileButton } from './profile-button';
 export { InfoBlock } from './info-block';
 export { ProfileForm } from './profile-form';
+export { ProfileOrders } from './profile-orders';
 export { Stories } from './stories';
 
 export * from './email-temapltes';
